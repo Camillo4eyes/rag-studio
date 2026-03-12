@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    container_name: rag-studio-api
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - EMBEDDER_PROVIDER=${EMBEDDER_PROVIDER:-sentence_transformer}
+      - VECTOR_STORE_PROVIDER=${VECTOR_STORE_PROVIDER:-chroma}
+      - CHROMA_PERSIST_DIR=/app/chroma_data
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - chroma_data:/app/chroma_data
+      - uploads:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  chroma_data:
+  uploads:
